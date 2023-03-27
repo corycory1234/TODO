@@ -1,37 +1,21 @@
-*{
-    margin:0;
-    padding:0;
-    list-style: none;
-    text-decoration: none;
-  }
-  img{
-    max-width: 100%;
-    height: auto;
-  }
-  body{
-    background-color: #FFD370;  
-}
-  
-  /************** 註冊Register ************/
-  .register-wrap {
-      margin: 100px auto;
-      max-width: 1024px;
+/************** 註冊Register ************/
+  .register_wrap {
+      margin:  auto;
+      // max-width: 1024px;
+      width: 100%;
       background-color: #FFD370;
       display: flex;
-      justify-content:space-around;
+      justify-content:center;
       align-items: center;
       .register-pics{
         display: flex;
         flex-direction: column;
-        width: 50%;
+        width: 386px;
       }
     }
     /************** 表格Form ************/
     .register-form{
         width: 50%;
-        h2{
-            padding: 0 74px;
-        }
     }
     form{
       display: flex;
@@ -87,4 +71,33 @@
       }
     }
     
-  
+  @media (max-width: 768px){
+    .register_wrap{
+      flex-direction: column;    
+        .register-pics img:last-child{
+        display: none;
+      }
+      .register-form{
+        width: 90%;
+    }
+    }
+  }
+
+  @media (max-width: 414px){
+    .register_wrap{
+      .register-pics{
+        width: 90%;
+        .register-pics img:first-child{
+          width: 100%;
+        }
+      }
+        .register-form{
+          width: 100%;
+          h2{
+            margin: 0;
+            text-align: center;
+          }
+      }
+    }
+
+  }

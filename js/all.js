@@ -45,7 +45,7 @@ function login(email, password){
         user.textContent = userName;
 
 //  隱藏登入頁面，顯示TODO頁面
-        document.querySelector(".logIn_Wrap").classList.add("hide");
+        document.querySelector(".login_Wrap").classList.add("hide");
         document.querySelector(".nav").classList.remove("hide");
         document.querySelector(".container").classList.remove("hide");
 
@@ -66,7 +66,7 @@ function login(email, password){
 //  點擊登入頁面的『註冊按鍵』，登入頁面隱藏，註冊頁面顯示
 registerBtn2.addEventListener("click", (event) =>{
     event.preventDefault();
-    document.querySelector(".logIn_Wrap").classList.add("hide");
+    document.querySelector(".login_Wrap").classList.add("hide");
     document.querySelector(".register_wrap").classList.remove("hide");
 });
 
@@ -151,7 +151,7 @@ let loginBtn2 = document.querySelector("#loginBtn2")
 loginBtn2.addEventListener("click", (event) =>{
     event.preventDefault();
     document.querySelector(".register_wrap").classList.add("hide");
-    document.querySelector(".logIn_Wrap").classList.remove("hide");
+    document.querySelector(".login_Wrap").classList.remove("hide");
 });
 
 
@@ -224,7 +224,7 @@ function render (arr){
           <input type="checkbox" ${item.completed_at ? "checked" : ""}> 
           <span>${item.content}</span>
         </label>
-        <a href="#" class="edit"><i class="fa-solid fa-pen-to-square"></i></a>
+        <i class="fa-solid fa-pen edit"></i>
         <a href="#" class="delete"></a>
       </li>`
     });
@@ -253,23 +253,26 @@ function addTodo() {
     console.log(response);
     // getTodo();
 //  Q：為何todo_Arr必須放在.then裡面，是因為要取得API給的ID嗎?
+//  A：是的，為了取得ID
     let obj = {
 //  Q：這邊id若用時間戳 new Date().getTime()，應該就會跟API提供的ID對不上了吧?
+//  A：是的
 //  Q：基本上，還是要以API提供的ID為主，放入Obj物件?
+//  A：是的
+//  最好放個COMPLETED_at
         id: response.data.id,
         content: inputText.value,
         check : "",
+        completed_at: null,
     };
     todo_Arr.unshift(obj);
 //  update_Todo()更新代辦清單，取代原本render渲染
+    showAndHide()
     update_Todo() 
     inputText.value = "";
     // render(todo_Arr);
     })
     .catch((error) => console.log(error.response))
-//  新增LI後，也為背景圖還有整包UL，各上display屬性
-    card_list.classList.add("show");
-    emptyArea.classList.add("hide")
 };
 
 
@@ -317,9 +320,9 @@ function delAndCheck(event){
         showAndHide()
 //  (5)單獨LI刪除 & Checkbox狀態
 //  else，點到delete之外(意指點到checkbox的input)    
-    }else{
+    } else {
         todo_Arr.forEach((item,index) => {
-//  這邊item.id和id，都是【字串】，看來API給的ID是字串
+            //這邊item.id和id，都是【字串】，看來API給的ID是字串
             if(item.id === id){
             axios.patch(`${apiUrl}/todos/${id}/toggle`, {},
         {
@@ -330,14 +333,14 @@ function delAndCheck(event){
         .then((response) => {
             todo_Arr.forEach((item, index) => {
                 if(item.id === response.data.id){
-//  也可用item.completed_at = response.data.completed_at;
+                    //也可用item.completed_at = response.data.completed_at;
                     todo_Arr[index].completed_at = response.data.completed_at;
                 }
             })
-/*  update_Todo()要放在.then裡面；若放在.then的外層，
-    會因為非同步關係，變成click後，.then(response)還沒將資料傳出，而先執行外層的updateList
-    接著click任何一處，.then(response)才會有動作 */
-            update_Todo(); // 3/17
+            //update_Todo()要放在.then裡面；若放在.then的外層，
+            //會因為非同步關係，變成click後，.then(response)還沒將資料傳出，而先執行外層的updateList
+            //接著click任何一處，.then(response)才會有動作 
+            update_Todo(); 
         })
         .catch((error) => console.log(error.response))
             }
@@ -355,14 +358,22 @@ function update_Todo(){
         updateArr = todo_Arr;
     }else if(tabStatus == "notDone"){
 //  Q：為何用嚴格相等，「待完成」渲染不出任何「待完成」li!? 是因為null在filter裡面算是判讀false嗎?
-        updateArr = todo_Arr.filter((item) => item.completed_at == null);
+//  A：因為「(3)新增」裡的obj並沒有加上complete_at屬性(API所給的)，到了「(5)Checkbox狀態才加上complete_at屬性」
+//  A：導致上了嚴格相等後，打勾必須執行兩次，「待完成」才會更新與渲染；obj先上complete_at屬性(API所給的)比較好!
+//  A：可寫成 updateArr = todo_Arr.filter((item) => item.completed_at); 代表有值
+//  A：updateArr = todo_Arr.filter((item) => !item.completed_at); 代表沒值
+        updateArr = todo_Arr.filter((item) => item.completed_at === null);
     }else if(tabStatus == "done"){
 //  Q：為何用嚴格不相等，「已完成」卻渲染「全部」!? 是因為null在filter裡面算是判讀false嗎?
-        updateArr = todo_Arr.filter((item) => item.completed_at != null);
+//  A：可寫成 updateArr = todo_Arr.filter((item) => item.completed_at); 代表有值
+//  A：updateArr = todo_Arr.filter((item) => !item.completed_at); 代表沒值
+        updateArr = todo_Arr.filter((item) => item.completed_at !== null);
     };
 
 //  Q：為何用嚴格相等，每個 「待完成」li，必須打勾後，才會跳出【X】個待完成項目!? 是因為null在filter裡面算是判讀false嗎?
-    let notDone_Length = todo_Arr.filter((item) => item.completed_at == null)
+//  A：可寫成 updateArr = todo_Arr.filter((item) => item.completed_at); 代表有值
+//  A：updateArr = todo_Arr.filter((item) => !item.completed_at); 代表沒值
+    let notDone_Length = todo_Arr.filter((item) => item.completed_at === null)
 //  待完成數量.textContent 等於todoLength的長度也OK
     notDone_Num.innerHTML = notDone_Length.length;
 //  若update_Todo(updateArr)，會造成堆疊上限，報錯
@@ -378,7 +389,8 @@ del_Done.addEventListener("click", (event)=>{
 //  Q：為何用嚴格不相等，只能刪第一次執行的「已完成」!??
 //  將【非null = 已完成】過濾到deleteData變數, 並到API進行刪除【非null = 已完成】
 //  Q：為何不直接todoArr.做filter，反而還要宣告個deleteData新變數?
-    let deleteData = todo_Arr.filter((item) => item.completed_at != null);
+//  A：因為filter執行後，會跑出一個全新陣列，所以要宣告個變數去做儲存
+    let deleteData = todo_Arr.filter((item) => item.completed_at !== null);
     deleteData.forEach((item) => {
         axios.delete(`${apiUrl}/todos/${item.id}`,{
         // headers:{
@@ -389,9 +401,12 @@ del_Done.addEventListener("click", (event)=>{
     .catch((error) => console.log(error.response))
     })
 //  Q：用嚴格相等, 會變成刪除「全部」!?
-//  Q：為何todoArr陣列, 還要進行一次filter將「未完成」篩選出來? 
+//  A：可寫成 updateArr = todo_Arr.filter((item) => item.completed_at); 代表有值
+//  A：updateArr = todo_Arr.filter((item) => !item.completed_at); 代表沒值
+//  Q：為何todoArr陣列, 還要進行一次filter將「未完成」篩選出來?
+//  A：因為todoArr它自己還沒filter之前，是完整資料包，必須再filter一次，把「待完成」留在陣列裡面，再更新渲染到頁面 
 //  Q：todoArr剩餘的元素，不就是「未完成」嗎?*/
-    todo_Arr = todo_Arr.filter((item) => item.completed_at == null);
+    todo_Arr = todo_Arr.filter((item) => item.completed_at === null);
 //  過濾完，必須更新頁面
     update_Todo();
 //  showAndHide()呈現背景圖，若被刪除到沒有LI，背景圖要秀出來
@@ -404,10 +419,8 @@ list.addEventListener("click", edit);
 function edit(event){
     // 透過ul往下找最「近」的li，並取得data-id(也可用getAttribute("data-id"))
     let id = event.target.closest("li").dataset.id;
-    console.log(id + "EDIT");
-    if(event.target.parentElement.classList.value === "edit"){
-        event.preventDefault();
-
+    if(event.target.classList.contains("edit")){
+        console.log("點到編輯了");
         
         // 當點擊li「刪除」時，該項li的id會不嚴格相等變數id，並再回報給API做刪除!?
         // todo_Arr = todo_Arr.filter((item) => item.id !== id); 
@@ -421,9 +434,7 @@ function edit(event){
             //     "Authorization": localStorage.getItem("token"),
             // }
         })
-        .then((response) => Swal.fire(`${response.data.message}`,"已編輯","success"))
-        // .then(() => render(todo_Arr))   // 3/16
-        // .then(() => update_Todo())    // 3/17
+        .then((response) => console.log(response))
         .catch((error) => console.log(error.response))
         // update_Todo()透過axios.then去執行，跟單獨執行，差異在哪裡??
         update_Todo()
@@ -435,11 +446,17 @@ function edit(event){
 
 //  (10)呈現「無代辦事項」之背景圖&隱藏整包UL
 function showAndHide(){
-    if(todo_Arr.length == 0){
+    if(todo_Arr.length > 0){
 //  Q：為何背景圖加class與 card_List加class，要寫在97行?
 //  Q：為何將上述寫在此函式當中，也在addTodo放上此函式，畫面卻不能渲染??
+//  A：因為.add 跟.remove會衝突，變成剛新增的變景圖，又被remove掉了;可以將判斷式寫在同個function
+        card_list.classList.add("show");
+        // emptyArea.classList.remove("show")
+        emptyArea.classList.add("hide");
+    }else if(todo_Arr.length == 0){
         card_list.classList.remove("show");
-        emptyArea.classList.remove("hide")
+        emptyArea.classList.remove("hide");
+        emptyArea.classList.add("show");
     }
 }
 
@@ -454,10 +471,13 @@ function logout(event){
         // }
     })
     .then((response) => {
+        //補上【axios.defaults.headers.common['Authorization'] = null】，解決登入→登出→再登入就跑出401之問題
+        axios.defaults.headers.common['Authorization'] = null;
         Swal.fire(`${response.data.message}`, "已登出", "success");
-        document.querySelector(".logIn_Wrap").classList.remove("hide");
+        //顯示登出頁面，隱藏TODO頁面
+        document.querySelector(".login_Wrap").classList.remove("hide");
         document.querySelector(".nav").classList.add("hide");
-        document.querySelector(".container").classList.add("hide");
+        document.querySelector(".container").classList.add("hide"); 
     })
     // .then(() => {
     //     //將storage 中的所有屬性移除。

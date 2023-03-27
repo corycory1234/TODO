@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
     <link rel="stylesheet" href="./css/all.css">
     <title>Document</title>
 </head>
 <body>
-    <div class="logIn_Wrap">
-        <div class="logIn-pics">
+  <!------------登入頁面------------->
+    <div class="login_Wrap">
+        <div class="login_Pics">
             <img src="./img/online todo list.png" alt="">
             <img src="./img/register-bg.png" alt="">
         </div>
@@ -30,7 +32,7 @@
         </div>
 
     </div>
-
+  <!------------註冊頁面------------->
     <div class="register_wrap hide" >
         <div class="register-pics">
             <img src="./img/online todo list.png" alt="">
@@ -38,8 +40,9 @@
         </div>
 
         <div class="register-form">
-            <h2>註冊帳號</h2>
+            
             <form action="">
+              <h2>註冊帳號</h2>
                 <label for="registerEmail">Email</label>
                 <input type="email" id="registerEmail" class="registerEmail" placeholder="請輸入Email">
 
@@ -61,14 +64,12 @@
 
     </div>
 
-
-
-
+  <!------------TODOLIST代辦清單頁面------------->
     <div class="nav hide">
         <div class="nav-pic"><a href=""><img src="./img/online todo list.png" alt="首頁"></a>
     </div>
         <div class="logoutArea">
-          <h2><span id="user">XX</span>的待辦</h2>
+          <h3><span id="user">XX</span>的待辦</h3>
           <!-- <a href="" type="submit" class="logout" id="logoutBtn">登出</a> -->
           <button type="submit" class="logout" id="logoutBtn">登出</button>
         </div>
@@ -108,7 +109,7 @@
         </div>
       </div>
     </div>
-
+  </div>
 
 
 
@@ -117,5 +118,6 @@
     <script src="./js/all.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
 </body>
 </html>
